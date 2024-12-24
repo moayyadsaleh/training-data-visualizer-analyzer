@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Military Language Training Analytics</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+      }
+
+      header {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      .form-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .form-section label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      .form-section input,
+      .form-section select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .charts {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .chart-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .chart-container p {
+        font-size: 14px;
+        color: #555;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Military Language Training Analytics</h1>
+    </header>
+    <main>
+      <section class="form-section">
+        <h2>Enter Training Data</h2>
+        <p>
+          Fill in the fields below to input the details for your language
+          program. This data will be aggregated and shown in the charts per
+          language.
+        </p>
+        <form id="data-form">
+          <!-- Language Name -->
+          <label for="language">Language</label>
+          <input
+            type="text"
+            id="language"
+            name="language"
+            placeholder="e.g., French"
+          />
+
+          <!-- Number of Students Per Language (Yearly) -->
+          <label for="students">Number of Students (Yearly)</label>
+          <input
+            type="number"
+            id="students"
+            name="students"
+            placeholder="e.g., 45"
+          />
+          <p>
+            <strong>How to calculate:</strong> Enter the total number of
+            students who enrolled in this specific language throughout the year.
+            For instance, if you had 25 new enrollees in spring and 20 in fall,
+            the annual total would be 45.
+          </p>
+
+          <!-- Success Rate Per Language -->
+          <label for="success-rate">Success Rate (%)</label>
+          <input
+            type="number"
+            id="success-rate"
+            name="success-rate"
+            placeholder="e.g., 85"
+          />
+          <p>
+            <strong>How to calculate:</strong> This represents the overall
+            percentage of students who progressed in the language or maintained
+            their level. For example, if 30 out of 40 enrollees either stayed at
+            their ILR level (e.g., 1 to 1) or advanced (e.g., 1 to 1+ or 1 to
+            2), the success rate is (30/40)*100 = 75%.
+          </p>
+
+          <!-- Hours Taught Per Language (Yearly) -->
+          <label for="hours">Hours Taught (Yearly)</label>
+          <input
+            type="number"
+            id="hours"
+            name="hours"
+            placeholder="e.g., 120"
+          />
+          <p>
+            <strong>How to calculate:</strong> Sum up all instructional hours
+            provided during the year for this language. For example, if you
+            taught 2 hours a day, 5 days a week, for 12 weeks total, then 2 × 5
+            × 12 = 120 hours.
+          </p>
+
+          <!-- Average ILR Level of Enrollees -->
+          <label for="avg-level">Average Level of Enrollees (ILR)</label>
+          <input
+            type="text"
+            id="avg-level"
+            name="avg-level"
+            placeholder="e.g., ILR 1"
+          />
+          <p>
+            <strong>How to determine:</strong> Estimate the typical ILR
+            proficiency level of the students who enrolled. For instance, if
+            most students entering this program were at ILR 0+, you’d enter ILR
+            0+ here.
+          </p>
+
+          <!-- Method of Instruction -->
+          <label for="instruction-method">Method of Instruction</label>
+          <select id="instruction-method" name="instruction-method">
+            <option value="Online">Online</option>
+            <option value="In-Person">In-Person</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+          <p>
+            <strong>How to choose:</strong> Indicate whether the course was
+            delivered entirely online, in a physical classroom, or through a
+            blend of both.
+          </p>
+
+          <!-- Student Feedback -->
+          <label for="feedback">Student Feedback (1-5)</label>
+          <input
+            type="number"
+            id="feedback"
+            name="feedback"
+            placeholder="e.g., 4.2"
+            step="0.1"
+          />
+          <p>
+            <strong>How to calculate:</strong> Gather all student feedback
+            scores for this language and compute the average. For example, if
+            five students gave ratings of 4, 4.5, 3.5, 5, and 4, the average is
+            (4+4.5+3.5+5+4) / 5 = 4.2.
+          </p>
+
+          <!-- Instructor Rating -->
+          <label for="instructor-rating">Instructor Rating (1-5)</label>
+          <input
+            type="number"
+            id="instructor-rating"
+            name="instructor-rating"
+            placeholder="e.g., 4.6"
+            step="0.1"
+          />
+          <p>
+            <strong>How to calculate:</strong> Collect the instructor ratings
+            for this language (across all classes taught in the year) and
+            average them out. If multiple instructors taught this language,
+            average the ratings for all instructors combined.
+          </p>
+
+          <button type="button" onclick="addData()">Submit Data</button>
+        </form>
+      </section>
+    </main>
+
+    <section class="charts">
+      <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+        <p>
+          The pie chart displays the total number of students (yearly) for each
+          language. Each segment corresponds to a specific language, and its
+          size represents the proportion of students enrolled in that language.
+        </p>
+      </div>
+      <div class="chart-container">
+        <canvas id="barChart"></canvas>
+        <p>
+          This bar chart visualizes the success rate for each language. You can
+          quickly see which languages have the highest or lowest percentage of
+          students who maintained or progressed in their ILR level.
+        </p>
+      </div>
+      <div class="chart-container">
+        <canvas id="feedbackChart"></canvas>
+        <p>
+          This bar chart shows both the student feedback scores and instructor
+          ratings for each language. Compare these two metrics to understand
+          overall satisfaction with the courses and the quality of teaching.
+        </p>
+      </div>
+    </section>
+
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const pieChartCtx = document.getElementById("pieChart").getContext("2d");
+      const barChartCtx = document.getElementById("barChart").getContext("2d");
+      const feedbackChartCtx = document
+        .getElementById("feedbackChart")
+        .getContext("2d");
+
+      const pieChart = new Chart(pieChartCtx, {
+        type: "pie",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Students per Language",
+              data: [],
+              backgroundColor: [
+                "#ff6384",
+                "#36a2eb",
+                "#cc65fe",
+                "#ffce56",
+                "#4caf50",
+                "#ffa600",
+              ],
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (tooltipItem) => {
+                  const language = tooltipItem.label;
+                  const students = tooltipItem.raw;
+                  const index = tooltipItem.dataIndex;
+                  const successRate = barChart.data.datasets[0].data[index];
+                  return `${language}: ${students} students, Success Rate: ${successRate}%`;
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const barChart = new Chart(barChartCtx, {
+        type: "bar",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Success Rate (%)",
+              data: [],
+              backgroundColor: "#4caf50",
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+            },
+          },
+        },
+      });
+
+      const feedbackChart = new Chart(feedbackChartCtx, {
+        type: "bar",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Student Feedback (1-5)",
+              data: [],
+              backgroundColor: "#ffce56",
+            },
+            {
+              label: "Instructor Rating (1-5)",
+              data: [],
+              backgroundColor: "#36a2eb",
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+            },
+          },
+        },
+      });
+
+      function addData() {
+        const language = document.getElementById("language").value.trim();
+        const students = parseInt(document.getElementById("students").value);
+        const successRate = parseInt(
+          document.getElementById("success-rate").value
+        );
+        const hours = parseInt(document.getElementById("hours").value);
+        const avgLevel = document.getElementById("avg-level").value.trim();
+        const instructionMethod =
+          document.getElementById("instruction-method").value;
+        const feedback = parseFloat(document.getElementById("feedback").value);
+        const instructorRating = parseFloat(
+          document.getElementById("instructor-rating").value
+        );
+
+        // Basic validation check
+        if (
+          language &&
+          students &&
+          successRate >= 0 &&
+          hours >= 0 &&
+          feedback &&
+          instructorRating
+        ) {
+          // Update pie chart
+          pieChart.data.labels.push(language);
+          pieChart.data.datasets[0].data.push(students);
+          pieChart.update();
+
+          // Update bar chart
+          barChart.data.labels.push(language);
+          barChart.data.datasets[0].data.push(successRate);
+          barChart.update();
+
+          // Update feedback chart
+          const labelForFeedbackChart = `${language} (Avg: ${avgLevel}, ${instructionMethod})`;
+          feedbackChart.data.labels.push(labelForFeedbackChart);
+          feedbackChart.data.datasets[0].data.push(feedback);
+          feedbackChart.data.datasets[1].data.push(instructorRating);
+          feedbackChart.update();
+
+          // Reset form
+          document.getElementById("data-form").reset();
+        } else {
+          alert("Please fill out all required fields correctly!");
+        }
+      }
+    </script>
+  </body>
+</html>
