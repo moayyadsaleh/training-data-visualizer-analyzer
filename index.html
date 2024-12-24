@@ -4,13 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Training Data: Analysis and Visualization</title>
+    <!-- Font Awesome (for icons) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2DhKN3ovDYEo1+g0I3spZXX9xFngsO4R97+Vt8j2f+ZSlDuKVdUSA8Lupe8OG5Bwg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <!-- Add the libraries to your page -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
     <style>
+      /* Base Styling */
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Nunito", Arial, sans-serif;
         margin: 0;
         padding: 0;
         background-color: #f4f4f9;
@@ -19,14 +28,52 @@
       header {
         background-color: #4caf50;
         color: white;
-        padding: 10px 20px;
+        padding: 20px;
         text-align: center;
+      }
+
+      header h1 {
+        margin: 0;
+        font-weight: 600;
       }
 
       main {
         padding: 20px;
       }
 
+      /* Modern Button Styles */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 15px;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #fff;
+        cursor: pointer;
+        background-color: #4caf50;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn i {
+        margin-right: 8px;
+      }
+
+      .btn:hover {
+        background-color: #45a049;
+      }
+
+      .btn-danger {
+        background-color: #e53935;
+      }
+
+      .btn-danger:hover {
+        background-color: #d32f2f;
+      }
+
+      /* Form Section */
       .form-section {
         background: #fff;
         padding: 20px;
@@ -48,8 +95,15 @@
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 4px;
+        font-size: 15px;
       }
 
+      .form-section p {
+        font-size: 14px;
+        color: #555;
+      }
+
+      /* Charts Section */
       .charts {
         display: flex;
         gap: 20px;
@@ -84,8 +138,14 @@
       <h1>Training Data: Analysis and Visualization</h1>
     </header>
     <main>
-      <button id="exportCSV">Export CSV</button>
-      <button id="exportPDF">Export PDF</button>
+      <!-- Updated Buttons with Icons -->
+      <button id="exportCSV" class="btn">
+        <i class="fas fa-file-csv"></i> Export CSV
+      </button>
+      <button id="exportPDF" class="btn btn-danger">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </button>
+
       <section class="form-section">
         <h2>Enter Training Data</h2>
         <p>
@@ -209,7 +269,14 @@
             average the ratings for all instructors combined.
           </p>
 
-          <button type="button" onclick="addData()">Submit Data</button>
+          <button
+            type="button"
+            onclick="addData()"
+            class="btn"
+            style="margin: 0"
+          >
+            <i class="fas fa-plus-circle"></i> Submit Data
+          </button>
         </form>
       </section>
     </main>
@@ -439,6 +506,7 @@
         }
       }
     </script>
+
     <script>
       // Convert data array to CSV with user-friendly headers
       function convertToCSV(objArray) {
@@ -478,6 +546,7 @@
         document.body.removeChild(link);
       });
     </script>
+
     <script>
       document.getElementById("exportPDF").addEventListener("click", () => {
         // Grab the section of your page you want to export
@@ -492,9 +561,7 @@
           const pdf = new jsPDF("p", "mm", "a4");
 
           // Calculate width/height of the image for PDF
-          // Let's assume we want full width in A4
           const pdfWidth = pdf.internal.pageSize.getWidth();
-          // The canvas ratio
           const canvasHeight = canvas.height * (pdfWidth / canvas.width);
 
           pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, canvasHeight);
