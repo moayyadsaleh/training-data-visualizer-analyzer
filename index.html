@@ -3,10 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Military Language Training Analytics</title>
+    <title>Training Data: Analysis and Visualization</title>
+    <!-- Font Awesome (for icons) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2DhKN3ovDYEo1+g0I3spZXX9xFngsO4R97+Vt8j2f+ZSlDuKVdUSA8Lupe8OG5Bwg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Add the libraries to your page -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
     <style>
+      /* Base Styling */
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Nunito", Arial, sans-serif;
         margin: 0;
         padding: 0;
         background-color: #f4f4f9;
@@ -15,14 +28,52 @@
       header {
         background-color: #4caf50;
         color: white;
-        padding: 10px 20px;
+        padding: 20px;
         text-align: center;
+      }
+
+      header h1 {
+        margin: 0;
+        font-weight: 600;
       }
 
       main {
         padding: 20px;
       }
 
+      /* Modern Button Styles */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 15px;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #fff;
+        cursor: pointer;
+        background-color: #4caf50;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn i {
+        margin-right: 8px;
+      }
+
+      .btn:hover {
+        background-color: #45a049;
+      }
+
+      .btn-danger {
+        background-color: #e53935;
+      }
+
+      .btn-danger:hover {
+        background-color: #d32f2f;
+      }
+
+      /* Form Section */
       .form-section {
         background: #fff;
         padding: 20px;
@@ -44,8 +95,15 @@
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 4px;
+        font-size: 15px;
       }
 
+      .form-section p {
+        font-size: 14px;
+        color: #555;
+      }
+
+      /* Charts Section */
       .charts {
         display: flex;
         gap: 20px;
@@ -66,13 +124,28 @@
         color: #555;
         margin-top: 10px;
       }
+
+      /* Extra styling for data text under charts */
+      .chart-data {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #333;
+      }
     </style>
   </head>
   <body>
     <header>
-      <h1>Military Language Training Analytics</h1>
+      <h1>Training Data: Analysis and Visualization</h1>
     </header>
     <main>
+      <!-- Updated Buttons with Icons -->
+      <button id="exportCSV" class="btn">
+        <i class="fas fa-file-csv"></i> Export CSV
+      </button>
+      <button id="exportPDF" class="btn btn-danger">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </button>
+
       <section class="form-section">
         <h2>Enter Training Data</h2>
         <p>
@@ -196,12 +269,20 @@
             average the ratings for all instructors combined.
           </p>
 
-          <button type="button" onclick="addData()">Submit Data</button>
+          <button
+            type="button"
+            onclick="addData()"
+            class="btn"
+            style="margin: 0"
+          >
+            <i class="fas fa-plus-circle"></i> Submit Data
+          </button>
         </form>
       </section>
     </main>
 
     <section class="charts">
+      <!-- Pie Chart -->
       <div class="chart-container">
         <canvas id="pieChart"></canvas>
         <p>
@@ -209,7 +290,11 @@
           language. Each segment corresponds to a specific language, and its
           size represents the proportion of students enrolled in that language.
         </p>
+        <!-- Data displayed below the chart -->
+        <div id="pieChartData" class="chart-data"></div>
       </div>
+
+      <!-- Bar Chart -->
       <div class="chart-container">
         <canvas id="barChart"></canvas>
         <p>
@@ -217,7 +302,11 @@
           quickly see which languages have the highest or lowest percentage of
           students who maintained or progressed in their ILR level.
         </p>
+        <!-- Data displayed below the chart -->
+        <div id="barChartData" class="chart-data"></div>
       </div>
+
+      <!-- Feedback Chart -->
       <div class="chart-container">
         <canvas id="feedbackChart"></canvas>
         <p>
@@ -225,12 +314,30 @@
           ratings for each language. Compare these two metrics to understand
           overall satisfaction with the courses and the quality of teaching.
         </p>
+        <!-- Data displayed below the chart -->
+        <div id="feedbackChartData" class="chart-data"></div>
       </div>
     </section>
 
     <!-- Load Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+      /*
+       * PIE CHART SCRATCH:
+       * Feel free to experiment with additional datasets or test data here
+       * before using real data. Example:
+       *
+       * const scratchLabels = ["Scratch A", "Scratch B", "Scratch C"];
+       * const scratchData = [10, 20, 30];
+       *
+       * END OF SCRATCH
+       *
+       * UNSCRATCH / Actual usage starts below
+       */
+
+      // This array will store every submission so the CSV export captures all data.
+      const allEntries = [];
+
       const pieChartCtx = document.getElementById("pieChart").getContext("2d");
       const barChartCtx = document.getElementById("barChart").getContext("2d");
       const feedbackChartCtx = document
@@ -340,28 +447,57 @@
         // Basic validation check
         if (
           language &&
-          students &&
+          students >= 0 &&
           successRate >= 0 &&
           hours >= 0 &&
-          feedback &&
-          instructorRating
+          feedback >= 0 &&
+          instructorRating >= 0
         ) {
           // Update pie chart
           pieChart.data.labels.push(language);
           pieChart.data.datasets[0].data.push(students);
           pieChart.update();
 
+          // Also display that info under the pie chart
+          document.getElementById(
+            "pieChartData"
+          ).innerHTML += `${language}: ${students} students, Success Rate: ${successRate}%<br>`;
+
           // Update bar chart
           barChart.data.labels.push(language);
           barChart.data.datasets[0].data.push(successRate);
           barChart.update();
 
-          // Update feedback chart
+          // Also display that info under the bar chart
+          document.getElementById(
+            "barChartData"
+          ).innerHTML += `${language}: ${successRate}% success rate<br>`;
+
+          // Build label for the feedback chart
           const labelForFeedbackChart = `${language} (Avg: ${avgLevel}, ${instructionMethod})`;
+
+          // Update feedback chart
           feedbackChart.data.labels.push(labelForFeedbackChart);
           feedbackChart.data.datasets[0].data.push(feedback);
           feedbackChart.data.datasets[1].data.push(instructorRating);
           feedbackChart.update();
+
+          // Also display that info under the feedback chart
+          document.getElementById(
+            "feedbackChartData"
+          ).innerHTML += `${labelForFeedbackChart}: Feedback = ${feedback}, Instructor Rating = ${instructorRating}<br>`;
+
+          // Add this entry to our allEntries array for CSV export
+          allEntries.push({
+            Language: language,
+            "# Students Enrolled": students,
+            "Success Rate (%)": successRate,
+            "# Hours Taught for 2024": hours,
+            "Avg ILR Level": avgLevel,
+            "Method of Instruction": instructionMethod,
+            "Student Feedback (1-5)": feedback,
+            "Instructor Rating (1-5)": instructorRating,
+          });
 
           // Reset form
           document.getElementById("data-form").reset();
@@ -369,6 +505,69 @@
           alert("Please fill out all required fields correctly!");
         }
       }
+    </script>
+
+    <script>
+      // Convert data array to CSV with user-friendly headers
+      function convertToCSV(objArray) {
+        if (objArray.length === 0) {
+          return "";
+        }
+        // Extract headers (keys) from the first object
+        const headers = Object.keys(objArray[0]);
+        // Build the rows
+        const rows = objArray.map((item) =>
+          headers.map((header) => item[header]).join(",")
+        );
+        // Combine headers and rows
+        return headers.join(",") + "\n" + rows.join("\n");
+      }
+
+      document.getElementById("exportCSV").addEventListener("click", () => {
+        // Use our allEntries array to export ALL of the data
+        if (allEntries.length === 0) {
+          alert("No data to export yet. Please add some entries first.");
+          return;
+        }
+
+        // Convert your data to CSV format
+        const csvContent = convertToCSV(allEntries);
+        // Create a Blob from the CSV string
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        // Create a hidden link to download the blob as a file
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "training_data_2024.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    </script>
+
+    <script>
+      document.getElementById("exportPDF").addEventListener("click", () => {
+        // Grab the section of your page you want to export
+        const chartsSection = document.querySelector(".charts");
+
+        html2canvas(chartsSection).then((canvas) => {
+          // Convert the canvas to an image
+          const imgData = canvas.toDataURL("image/png");
+
+          // Create jsPDF instance (portrait, mm, A4)
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF("p", "mm", "a4");
+
+          // Calculate width/height of the image for PDF
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const canvasHeight = canvas.height * (pdfWidth / canvas.width);
+
+          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, canvasHeight);
+          pdf.save("language_analytics.pdf");
+        });
+      });
     </script>
   </body>
 </html>
